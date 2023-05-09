@@ -28,8 +28,8 @@ export class my_GLTF_Loader {
         const loader = new GLTFLoader().setPath('../../../assets/');
         loader.load('Cottage_FREE.gltf', (gltf) => {
           const model = gltf.scene;
-          model.position.setX(10)
-          model.position.setZ(10)
+          // model.position.setX(10)
+          // model.position.setZ(10)
           this.scene.add(gltf.scene);
           this.myRenderer.render();
         });
