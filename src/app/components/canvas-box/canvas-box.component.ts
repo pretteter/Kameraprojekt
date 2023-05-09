@@ -3,8 +3,8 @@ import { Component, OnInit } from '@angular/core';
 import * as THREE from 'three';
 
 import { myRenderer } from 'src/app/Scripts/renderer';
-import { myCamera } from 'src/app/Scripts/camera';
-import { myLoader } from 'src/app/Scripts/loader';
+import { myViewCamera } from 'src/app/Scripts/camera';
+import { my_GLTF_Loader } from 'src/app/Scripts/loader';
 import { myControls } from 'src/app/Scripts/controls';
 
 @Component({
@@ -13,15 +13,15 @@ import { myControls } from 'src/app/Scripts/controls';
   styleUrls: ['./canvas-box.component.scss'],
 })
 export class CanvasBoxComponent implements OnInit {
-  camera: THREE.Camera = new myCamera().camera;
+  camera: THREE.Camera = new myViewCamera().camera;
   scene: THREE.Scene = new THREE.Scene();
   myRenderer: myRenderer;
-  myLoader: myLoader;
+  myLoader: my_GLTF_Loader;
   myControls: myControls;
 
   constructor() {
     this.myRenderer = new myRenderer(this.scene, this.camera);
-    this.myLoader = new myLoader(this.scene, this.myRenderer);
+    this.myLoader = new my_GLTF_Loader(this.scene, this.myRenderer);
     this.myControls = new myControls(this.camera, this.myRenderer);
   }
 

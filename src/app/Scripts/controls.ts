@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { myCamera } from './camera';
+import { myViewCamera } from './camera';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { myRenderer } from './renderer';
 

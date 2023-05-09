@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-export class myCamera extends THREE.Camera {
+export class myViewCamera extends THREE.Camera {
   camera: THREE.Camera;
   constructor() {
     super();

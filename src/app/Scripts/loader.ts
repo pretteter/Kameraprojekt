@@ -4,7 +4,7 @@ import * as THREE from 'three';
 
 import { myRenderer } from 'src/app/Scripts/renderer';
 
-export class myLoader {
+export class my_GLTF_Loader {
   scene: THREE.Scene;
   myRenderer: myRenderer;
   constructor(scene: THREE.Scene, myRenderer: myRenderer) {
