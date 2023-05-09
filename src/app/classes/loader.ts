@@ -2,7 +2,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
 import * as THREE from 'three';
 
-import { myRenderer } from 'src/app/Scripts/renderer';
+import { myRenderer } from 'src/app/classes/renderer';
 
 export class my_GLTF_Loader {
   scene: THREE.Scene;

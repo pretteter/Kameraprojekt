@@ -5,7 +5,12 @@ export class myRenderer {
   renderer: THREE.WebGLRenderer;
   scene: THREE.Scene;
   camera: THREE.Camera;
-  constructor(scene: THREE.Scene, camera: THREE.Camera) {
+  cameraview: THREE.Camera | undefined;
+  constructor(
+    scene: THREE.Scene,
+    camera: THREE.Camera,
+
+  ) {
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.scene = scene;
     this.camera = camera;
@@ -27,6 +32,17 @@ export class myRenderer {
   }
 
   render() {
+    this.renderer.clear();
+    this.renderer.setViewport(0, 0, window.innerWidth / 2, window.innerHeight);
     this.renderer.render(this.scene, this.camera);
+    if (this.cameraview) {
+      this.renderer.setViewport(
+        window.innerWidth / 2,
+        0,
+        window.innerWidth / 2,
+        window.innerHeight
+      );
+      this.renderer.render(this.scene, this.cameraview);
+    }
   }
 }
