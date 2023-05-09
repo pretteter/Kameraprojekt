@@ -1,0 +1,85 @@
+From a659e5ec6a9e74a14067181f94b77c3eaf104d0a Mon Sep 17 00:00:00 2001
+From: Pretteter <jan97@kabelmail.de>
+Date: Tue, 9 May 2023 14:51:58 +0200
+Subject: [PATCH] change class names
+
+---
+ src/app/Scripts/camera.ts                             |  2 +-
+ src/app/Scripts/controls.ts                           |  2 +-
+ src/app/Scripts/loader.ts                             |  2 +-
+ src/app/components/canvas-box/canvas-box.component.ts | 10 +++++-----
+ 4 files changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/src/app/Scripts/camera.ts b/src/app/Scripts/camera.ts
+index 006a7e7..616818f 100644
+--- a/src/app/Scripts/camera.ts
++++ b/src/app/Scripts/camera.ts
+@@ -1,6 +1,6 @@
+ import * as THREE from 'three';
+ 
+-export class myCamera extends THREE.Camera {
++export class myViewCamera extends THREE.Camera {
+   camera: THREE.Camera;
+   constructor() {
+     super();
+diff --git a/src/app/Scripts/controls.ts b/src/app/Scripts/controls.ts
+index cda5579..0423ad0 100644
+--- a/src/app/Scripts/controls.ts
++++ b/src/app/Scripts/controls.ts
+@@ -1,5 +1,5 @@
+ import * as THREE from 'three';
+-import { myCamera } from './camera';
++import { myViewCamera } from './camera';
+ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+ import { myRenderer } from './renderer';
+ 
+diff --git a/src/app/Scripts/loader.ts b/src/app/Scripts/loader.ts
+index 597f3a1..b4bfc9c 100644
+--- a/src/app/Scripts/loader.ts
++++ b/src/app/Scripts/loader.ts
+@@ -4,7 +4,7 @@ import * as THREE from 'three';
+ 
+ import { myRenderer } from 'src/app/Scripts/renderer';
+ 
+-export class myLoader {
++export class my_GLTF_Loader {
+   scene: THREE.Scene;
+   myRenderer: myRenderer;
+   constructor(scene: THREE.Scene, myRenderer: myRenderer) {
+diff --git a/src/app/components/canvas-box/canvas-box.component.ts b/src/app/components/canvas-box/canvas-box.component.ts
+index 4ab31d4..45591a5 100644
+--- a/src/app/components/canvas-box/canvas-box.component.ts
++++ b/src/app/components/canvas-box/canvas-box.component.ts
+@@ -3,8 +3,8 @@ import { Component, OnInit } from '@angular/core';
+ import * as THREE from 'three';
+ 
+ import { myRenderer } from 'src/app/Scripts/renderer';
+-import { myCamera } from 'src/app/Scripts/camera';
+-import { myLoader } from 'src/app/Scripts/loader';
++import { myViewCamera } from 'src/app/Scripts/camera';
++import { my_GLTF_Loader } from 'src/app/Scripts/loader';
+ import { myControls } from 'src/app/Scripts/controls';
+ 
+ @Component({
+@@ -13,15 +13,15 @@ import { myControls } from 'src/app/Scripts/controls';
+   styleUrls: ['./canvas-box.component.scss'],
+ })
+ export class CanvasBoxComponent implements OnInit {
+-  camera: THREE.Camera = new myCamera().camera;
++  camera: THREE.Camera = new myViewCamera().camera;
+   scene: THREE.Scene = new THREE.Scene();
+   myRenderer: myRenderer;
+-  myLoader: myLoader;
++  myLoader: my_GLTF_Loader;
+   myControls: myControls;
+ 
+   constructor() {
+     this.myRenderer = new myRenderer(this.scene, this.camera);
+-    this.myLoader = new myLoader(this.scene, this.myRenderer);
++    this.myLoader = new my_GLTF_Loader(this.scene, this.myRenderer);
+     this.myControls = new myControls(this.camera, this.myRenderer);
+   }
+ 
+-- 
+2.36.0.windows.1
+
