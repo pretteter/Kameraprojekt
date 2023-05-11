@@ -20,17 +20,12 @@ export class myNewRenderer {
     loader.load('Cottage_FREE.gltf', (gltf) => {
       const model = gltf.scene;
       this.scene.add(gltf.scene);
-
-      // const color = 0xffffff;
-      // const intensity = 1;
-      // const light = new THREE.DirectionalLight(color, intensity);
-      // light.position.set(0, 10, 0);
-      // light.target.position.set(-5, 0, 0);
-      // this.scene.add(light);
-      // this.scene.add(light.target);
-
-      // this.myRender();
     });
+    this.setLight();
+    this.myRender();
+  }
+
+  private setLight() {
     const color = 0xffffff;
     const intensity = 1;
     const light = new THREE.DirectionalLight(color, intensity);
@@ -38,20 +33,17 @@ export class myNewRenderer {
     light.target.position.set(-5, 0, 0);
     this.scene.add(light);
     this.scene.add(light.target);
-
-    this.myRender();
   }
 
   private myRender() {
-    // if (!obj && this instanceof myNewRenderer) {
-    //   obj = this;
-    // }
     const view1Elem = document.querySelector('#view1') as HTMLDivElement;
     const view2Elem = document.querySelector('#view2') as HTMLDivElement;
     const view3Elem = document.querySelector('#view3') as HTMLDivElement;
     const cameraHelper = new THREE.CameraHelper(this.cameras[0]);
+    const camera2Helper = new THREE.CameraHelper(this.cameras[1]);
     const camera3Helper = new THREE.CameraHelper(this.cameras[2]);
     this.scene.add(cameraHelper);
+    this.scene.add(camera2Helper);
     this.scene.add(camera3Helper);
     this.resizeRendererToDisplaySize(this.renderer);
 
@@ -65,10 +57,11 @@ export class myNewRenderer {
       // adjust the camera for this aspect
       this.cameras[0].aspect = aspect;
       this.cameras[0].updateProjectionMatrix();
-      // cameraHelper.update();
+      cameraHelper.update();
 
       // don't draw the camera helper in the original view
       cameraHelper.visible = false;
+      camera2Helper.visible = false;
       camera3Helper.visible = false;
 
       this.scene.background = new THREE.Color(0x000000);
@@ -84,10 +77,11 @@ export class myNewRenderer {
       // adjust the camera for this aspect
       this.cameras[2].aspect = aspect;
       this.cameras[2].updateProjectionMatrix();
-      // camera3Helper.update();
+      camera3Helper.update();
 
       // don't draw the camera helper in the original view
       cameraHelper.visible = false;
+      camera2Helper.visible = false;
       camera3Helper.visible = false;
 
       this.scene.background = new THREE.Color(0x000000);
@@ -103,9 +97,11 @@ export class myNewRenderer {
       // adjust the camera for this aspect
       this.cameras[1].aspect = aspect;
       this.cameras[1].updateProjectionMatrix();
+      camera2Helper.update();
 
       // draw the camera helper in the 2nd view
       cameraHelper.visible = true;
+      camera2Helper.visible = true;
       camera3Helper.visible = true;
 
       this.scene.background = new THREE.Color(0x000040);
@@ -116,7 +112,6 @@ export class myNewRenderer {
     requestAnimationFrame(() => {
       this.myRender();
     });
-    // console.log(this.renderer);
   }
 
   private setScissorForElement(elem: Element | null) {
