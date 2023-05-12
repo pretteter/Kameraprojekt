@@ -1,11 +1,13 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { myNewControls } from './myNewControls';
 
 export class myNewRenderer {
   renderer: THREE.WebGLRenderer;
-  scene: THREE.Scene;
-  cameras: THREE.PerspectiveCamera[];
+ private scene: THREE.Scene;
+ private cameras: THREE.PerspectiveCamera[];
+ private control: myNewControls;
 
   constructor(scene: THREE.Scene, cameras: THREE.PerspectiveCamera[]) {
     const canvas = document.querySelector('#c');
@@ -13,26 +15,44 @@ export class myNewRenderer {
     this.renderer = new THREE.WebGLRenderer({ canvas });
     this.scene = scene;
     this.cameras = cameras;
+
+    this.control=new myNewControls(
+      this.scene,
+      this.cameras[0],
+      this.renderer
+    );
   }
 
   startRender() {
     const loader = new GLTFLoader().setPath('../../assets/');
     loader.load('Cottage_FREE.gltf', (gltf) => {
-      const model = gltf.scene;
-      this.scene.add(gltf.scene);
+      const farm = gltf.scene
+      farm.name='FARM'
+      this.scene.add(farm);
+      console.log(this.scene);
+      console.log(this.scene.getObjectByName("FARM"));
+
+
     });
     this.setLight();
     this.myRender();
+
+
   }
 
   private setLight() {
-    const color = 0xffffff;
-    const intensity = 1;
-    const light = new THREE.DirectionalLight(color, intensity);
-    light.position.set(0, 10, 0);
-    light.target.position.set(-5, 0, 0);
-    this.scene.add(light);
-    this.scene.add(light.target);
+    const light1 = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.75 );
+    light1.position.set( 0.5, 1, 0.75 );
+    this.scene.add( light1 );
+
+    this.scene.fog = new THREE.Fog( 0xffffff, 0, 100 );
+    // const color = 0xffffff;
+    // const intensity = 1;
+    // const light = new THREE.DirectionalLight(color, intensity);
+    // light.position.set(0, 10, 0);
+    // light.target.position.set(-5, 0, 0);
+    // this.scene.add(light);
+    // this.scene.add(light.target);
   }
 
   private myRender() {
@@ -40,10 +60,10 @@ export class myNewRenderer {
     const view2Elem = document.querySelector('#view2') as HTMLDivElement;
     const view3Elem = document.querySelector('#view3') as HTMLDivElement;
     const cameraHelper = new THREE.CameraHelper(this.cameras[0]);
-    const camera2Helper = new THREE.CameraHelper(this.cameras[1]);
+    // const camera2Helper = new THREE.CameraHelper(this.cameras[1]);
     const camera3Helper = new THREE.CameraHelper(this.cameras[2]);
     this.scene.add(cameraHelper);
-    this.scene.add(camera2Helper);
+    // this.scene.add(camera2Helper);
     this.scene.add(camera3Helper);
     this.resizeRendererToDisplaySize(this.renderer);
 
@@ -60,13 +80,14 @@ export class myNewRenderer {
       cameraHelper.update();
 
       // don't draw the camera helper in the original view
-      cameraHelper.visible = false;
-      camera2Helper.visible = false;
-      camera3Helper.visible = false;
+      // cameraHelper.visible = false;
+      // camera2Helper.visible = false;
+      // camera3Helper.visible = false;
 
-      this.scene.background = new THREE.Color(0x000000);
+      this.scene.background = new THREE.Color( 0xffffff );
 
       // render
+
       this.renderer.render(this.scene, this.cameras[0]);
     }
 
@@ -80,11 +101,11 @@ export class myNewRenderer {
       camera3Helper.update();
 
       // don't draw the camera helper in the original view
-      cameraHelper.visible = false;
-      camera2Helper.visible = false;
-      camera3Helper.visible = false;
+      // cameraHelper.visible = false;
+      // camera2Helper.visible = false;
+      // camera3Helper.visible = false;
 
-      this.scene.background = new THREE.Color(0x000000);
+      this.scene.background = new THREE.Color( 0xffffff );
 
       // render
       this.renderer.render(this.scene, this.cameras[2]);
@@ -97,15 +118,15 @@ export class myNewRenderer {
       // adjust the camera for this aspect
       this.cameras[1].aspect = aspect;
       this.cameras[1].updateProjectionMatrix();
-      camera2Helper.update();
+      // camera2Helper.update();
 
       // draw the camera helper in the 2nd view
       cameraHelper.visible = true;
-      camera2Helper.visible = true;
+      // camera2Helper.visible = true;
       camera3Helper.visible = true;
 
       this.scene.background = new THREE.Color(0x000040);
-
+      this.control.start()
       this.renderer.render(this.scene, this.cameras[1]);
     }
 
