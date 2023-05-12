@@ -60,6 +60,7 @@ export class myNewRenderer {
     const camera3Helper = new THREE.CameraHelper(this.cameras[2]);
     // this.scene.add(cameraHelper);
     // this.scene.add(camera2Helper);
+
     this.scene.add(camera3Helper);
     this.resizeRendererToDisplaySize(this.renderer);
 
@@ -78,7 +79,7 @@ export class myNewRenderer {
       // don't draw the camera helper in the original view
       // cameraHelper.visible = false;
       // camera2Helper.visible = false;
-      // camera3Helper.visible = false;
+      camera3Helper.visible = false;
 
       this.scene.background = new THREE.Color(0xffffff);
 
@@ -99,7 +100,7 @@ export class myNewRenderer {
       // don't draw the camera helper in the original view
       // cameraHelper.visible = false;
       // camera2Helper.visible = false;
-      // camera3Helper.visible = false;
+      camera3Helper.visible = false;
 
       this.scene.background = new THREE.Color(0xffffff);
 

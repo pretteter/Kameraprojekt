@@ -3,7 +3,8 @@ import { Component, OnInit } from '@angular/core';
 // import * as THREE from 'three';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { GUI } from '../../scripts/dat.gui.module.js';
+// import { GUI } from '../../scripts/dat.gui.module';
+import { GUI } from 'dat.gui';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
@@ -69,9 +70,8 @@ export class CanvasBoxComponent implements OnInit {
     this.cameras[1].lookAt(0, 5, 0);
     this.cameras[2].position.set(10, 10, 20);
 
-
     this.cameras.forEach((element, index) => {
-      if (element!=mainCamera) {
+      if (element != mainCamera) {
         const x = new OrbitControls(
           this.cameras[index],
           eval('view' + (index + 1) + 'Elem')
@@ -82,7 +82,56 @@ export class CanvasBoxComponent implements OnInit {
       this.scene.add(element);
     });
 
+    this.manageGui();
+
     const newRenderer = new myNewRenderer(this.scene, this.cameras);
     newRenderer.startRender();
+  }
+
+  manageGui() {
+    class MinMaxGUIHelper {
+      obj: any;
+      minProp: string;
+      maxProp: string;
+      minDif: number;
+      constructor(obj: any, minProp: string, maxProp: string, minDif: number) {
+        this.obj = obj;
+        this.minProp = minProp;
+        this.maxProp = maxProp;
+        this.minDif = minDif;
+      }
+      get min() {
+        return this.obj[this.minProp];
+      }
+      set min(v) {
+        this.obj[this.minProp] = v;
+        this.obj[this.maxProp] = Math.max(
+          this.obj[this.maxProp],
+          v + this.minDif
+        );
+      }
+      get max() {
+        return this.obj[this.maxProp];
+      }
+      set max(v) {
+        this.obj[this.maxProp] = v;
+        this.min = this.min; // this will call the min setter
+      }
+    }
+
+    const gui = new GUI();
+    this.cameras.forEach((element, index) => {
+      const f1 = gui.addFolder('Camera' + (index + 1) + ' Controls');
+      f1.add(element, 'fov', 1, 180);
+      const minMaxGUIHelper = new MinMaxGUIHelper(
+        element,
+        'near',
+        'far',
+        0.1
+      );
+      f1.add(minMaxGUIHelper, 'min', 0.1, 50, 0.1).name('near');
+      f1.add(minMaxGUIHelper, 'max', 0.1, 50, 0.1).name('far');
+      f1.close();
+    });
   }
 }
