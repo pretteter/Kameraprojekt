@@ -7,11 +7,7 @@ import { GUI } from '../../scripts/dat.gui.module.js';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
-import { myRenderer } from 'src/app/classes/renderer';
 import { myViewCamera } from 'src/app/classes/myViewCamera';
-import { my_GLTF_Loader } from 'src/app/classes/loader';
-import { myControls } from 'src/app/classes/controls';
-import { physicalCamera } from 'src/app/classes/camera';
 import { myNewRenderer } from 'src/app/classes/myNewRenderer';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 
@@ -23,42 +19,46 @@ import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockCont
 export class CanvasBoxComponent implements OnInit {
   camera: THREE.Camera = new myViewCamera().camera;
   scene: THREE.Scene = new THREE.Scene();
-  myRenderer: myRenderer;
-  myLoader: my_GLTF_Loader;
-  myControls: myControls;
   cameras: THREE.PerspectiveCamera[];
 
   constructor() {
-    // this.myRenderer = new myRenderer(this.scene, this.camera);
-    // this.myLoader = new my_GLTF_Loader(this.scene, this.myRenderer);
-    // this.myControls = new myControls(this.camera, this.myRenderer);
     this.cameras = [];
   }
 
   ngOnInit(): void {
-    // this.main();
     this.test();
   }
 
   test() {
-    // const canvas = document.querySelector('#c');
-    const view1Elem = document.querySelector('#view1') as HTMLDivElement;
     const view2Elem = document.querySelector('#view2') as HTMLDivElement;
     const view3Elem = document.querySelector('#view3') as HTMLDivElement;
-    // const renderer = new THREE.WebGLRenderer({ canvas });
 
     const fov = 45;
     const aspect = 2; // the canvas default
     const near = 5;
     const far = 100;
 
-    // const mainCamera = new THREE.PerspectiveCamera(fov, aspect, near, far);
     const mainCamera = new THREE.PerspectiveCamera(
       75,
       window.innerWidth / window.innerHeight,
       1,
       1000
     );
+
+    // mainCamera.add(
+    //   new THREE.Mesh(
+    //     new THREE.SphereGeometry(100, 16, 8),
+    //     new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true })
+    //   )
+    // );
+
+    var geometry = new THREE.BoxGeometry(2, 2, 2).toNonIndexed();
+
+    var material = new THREE.MeshBasicMaterial({ color: 0x000000 });
+
+    var mesh = new THREE.Mesh(geometry, material);
+
+    mainCamera.add(mesh);
 
     this.cameras.push(mainCamera);
     this.cameras.push(new THREE.PerspectiveCamera(60, 2, 0.1, 500));
@@ -69,13 +69,18 @@ export class CanvasBoxComponent implements OnInit {
     this.cameras[1].lookAt(0, 5, 0);
     this.cameras[2].position.set(10, 10, 20);
 
-    const controls2 = new OrbitControls(this.cameras[1], view2Elem);
-    controls2.target.set(0, 5, 0);
-    controls2.update();
 
-    const controls3 = new OrbitControls(this.cameras[2], view3Elem);
-    controls3.target.set(0, 5, 0);
-    controls3.update();
+    this.cameras.forEach((element, index) => {
+      if (element!=mainCamera) {
+        const x = new OrbitControls(
+          this.cameras[index],
+          eval('view' + (index + 1) + 'Elem')
+        );
+        x.target.set(0, 5, 0);
+        x.update();
+      }
+      this.scene.add(element);
+    });
 
     const newRenderer = new myNewRenderer(this.scene, this.cameras);
     newRenderer.startRender();
