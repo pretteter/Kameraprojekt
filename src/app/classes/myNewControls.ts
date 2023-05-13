@@ -4,9 +4,9 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 import { myNewRenderer } from './myNewRenderer';
 
-export class myNewControls {
-  raycaster: THREE.Raycaster;
+import { scene, cameras } from 'src/app/Collection/globalVariables';
 
+export class myNewControls {
   moveForward = false;
   moveBackward = false;
   moveLeft = false;
@@ -21,26 +21,16 @@ export class myNewControls {
   velocity = new THREE.Vector3();
   direction = new THREE.Vector3();
 
-  camera: THREE.PerspectiveCamera;
-  scene: THREE.Scene;
+  playerCamera = cameras[0];
+  scene = scene;
   renderer: THREE.WebGLRenderer;
   controls: PointerLockControls;
-  constructor(
-    scene: THREE.Scene,
-    mainCamera: THREE.PerspectiveCamera,
-    renderer: THREE.WebGLRenderer
-  ) {
-    this.scene = scene;
-    this.camera = mainCamera;
+
+  constructor(renderer: THREE.WebGLRenderer) {
     this.renderer = renderer;
-    // this.raycaster = new THREE.Raycaster(
-    //   new THREE.Vector3(),
-    //   new THREE.Vector3(0, -1, 0),
-    //   0,
-    //   10
-    // );
+
     this.controls = new PointerLockControls(
-      this.camera,
+      this.playerCamera,
       document.querySelector('#view1') as HTMLDivElement
     );
     this.addEventListeners();
@@ -54,23 +44,12 @@ export class myNewControls {
     const time = performance.now();
 
     if (this.controls.isLocked === true) {
-      // this.raycaster.ray.origin.copy(this.controls.getObject().position);
-      // this.raycaster.ray.origin.y -= 10;
-      // if (this.scene.getObjectByName('FARM')) {
-      //   this.objects.push(this.scene.getObjectByName('FARM'));
-      // }
-      // const intersections = this.raycaster.intersectObjects(
-      //   this.objects,
-      //   false
-      // );
-
-      // const onObject = intersections.length > 0;
       const delta = (time - this.prevTime) / 1000;
 
       this.velocity.x -= this.velocity.x * 10.0 * delta;
       this.velocity.z -= this.velocity.z * 10.0 * delta;
 
-      this.velocity.y -=  75.0 * delta; // 75.0 = mass
+      this.velocity.y -= 75.0 * delta; // 75.0 = mass
 
       this.direction.z = Number(this.moveForward) - Number(this.moveBackward);
       this.direction.x = Number(this.moveRight) - Number(this.moveLeft);
@@ -80,11 +59,6 @@ export class myNewControls {
         this.velocity.z -= this.direction.z * 40.0 * delta;
       if (this.moveLeft || this.moveRight)
         this.velocity.x -= this.direction.x * 40.0 * delta;
-
-      // if (onObject === true) {
-      //   this.velocity.y = Math.max(0, this.velocity.y);
-      //   this.canJump = true;
-      // }
 
       this.controls.moveRight(-this.velocity.x * delta);
       this.controls.moveForward(-this.velocity.z * delta);
@@ -99,7 +73,7 @@ export class myNewControls {
       }
     }
     this.prevTime = time;
-    this.renderer.render(this.scene, this.camera);
+    this.renderer.render(this.scene, this.playerCamera);
   }
 
   addEventListeners() {
@@ -175,109 +149,5 @@ export class myNewControls {
 
     document.addEventListener('keydown', onKeyDown);
     document.addEventListener('keyup', onKeyUp);
-  }
-
-  addObjects() {
-    this.raycaster = new THREE.Raycaster(
-      new THREE.Vector3(),
-      new THREE.Vector3(0, -1, 0),
-      0,
-      10
-    );
-
-    // floor
-
-    let floorGeometry = new THREE.PlaneGeometry(2000, 2000, 100, 100);
-    floorGeometry.rotateX(-Math.PI / 2);
-
-    // vertex displacement
-
-    let position = floorGeometry.attributes['position'];
-
-    for (let i = 0, l = position.count; i < l; i++) {
-      this.vertex.fromBufferAttribute(position, i);
-
-      this.vertex.x += Math.random() * 20 - 10;
-      this.vertex.y += Math.random() * 2;
-      this.vertex.z += Math.random() * 20 - 10;
-
-      position.setXYZ(i, this.vertex.x, this.vertex.y, this.vertex.z);
-    }
-
-    // floorGeometry = floorGeometry.toNonIndexed(); // ensure each face has unique vertices
-
-    position = floorGeometry.attributes['position'];
-    const colorsFloor = [];
-
-    for (let i = 0, l = position.count; i < l; i++) {
-      this.color.setHSL(
-        Math.random() * 0.3 + 0.5,
-        0.75,
-        Math.random() * 0.25 + 0.75,
-        THREE.SRGBColorSpace
-      );
-      colorsFloor.push(this.color.r, this.color.g, this.color.b);
-    }
-
-    floorGeometry.setAttribute(
-      'color',
-      new THREE.Float32BufferAttribute(colorsFloor, 3)
-    );
-
-    const floorMaterial = new THREE.MeshBasicMaterial({ vertexColors: true });
-
-    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-    this.scene.add(floor);
-
-    // objects
-
-    const boxGeometry = new THREE.BoxGeometry(20, 20, 20).toNonIndexed();
-
-    position = boxGeometry.attributes['position'];
-    const colorsBox = [];
-
-    for (let i = 0, l = position.count; i < l; i++) {
-      this.color.setHSL(
-        Math.random() * 0.3 + 0.5,
-        0.75,
-        Math.random() * 0.25 + 0.75,
-        THREE.SRGBColorSpace
-      );
-      colorsBox.push(this.color.r, this.color.g, this.color.b);
-    }
-
-    boxGeometry.setAttribute(
-      'color',
-      new THREE.Float32BufferAttribute(colorsBox, 3)
-    );
-
-    for (let i = 0; i < 500; i++) {
-      const boxMaterial = new THREE.MeshPhongMaterial({
-        specular: 0xffffff,
-        flatShading: true,
-        vertexColors: true,
-      });
-      boxMaterial.color.setHSL(
-        Math.random() * 0.2 + 0.5,
-        0.75,
-        Math.random() * 0.25 + 0.75,
-        THREE.SRGBColorSpace
-      );
-
-      const box = new THREE.Mesh(boxGeometry, boxMaterial);
-      box.position.x = Math.floor(Math.random() * 20 - 10) * 20;
-      box.position.y = Math.floor(Math.random() * 20) * 20 + 10;
-      box.position.z = Math.floor(Math.random() * 20 - 10) * 20;
-
-      this.scene.add(box);
-      this.objects.push(box);
-    }
-
-    //
-
-    // this.renderer = new THREE.WebGLRenderer( { antialias: true } );
-    // this.renderer.setPixelRatio( window.devicePixelRatio );
-    // this.renderer.setSize( window.innerWidth, window.innerHeight );
-    // document.body.appendChild( this.renderer.domElement );
   }
 }

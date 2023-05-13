@@ -11,6 +11,9 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { myViewCamera } from 'src/app/classes/myViewCamera';
 import { myNewRenderer } from 'src/app/classes/myNewRenderer';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
+import { myCamera } from 'src/app/classes/myCamera';
+
+import { scene, cameras } from 'src/app/Collection/globalVariables';
 
 @Component({
   selector: 'app-canvas-box',
@@ -18,54 +21,26 @@ import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockCont
   styleUrls: ['./canvas-box.component.scss'],
 })
 export class CanvasBoxComponent implements OnInit {
-  camera: THREE.Camera = new myViewCamera().camera;
-  scene: THREE.Scene = new THREE.Scene();
-  cameras: THREE.PerspectiveCamera[];
+  scene = scene;
+  cameras = cameras;
 
-  constructor() {
-    this.cameras = [];
-  }
+  constructor() {}
 
   ngOnInit(): void {
-    this.test();
+    this.main();
   }
 
-  test() {
-    const view2Elem = document.querySelector('#view2') as HTMLDivElement;
-    const view3Elem = document.querySelector('#view3') as HTMLDivElement;
-
-    const fov = 45;
-    const aspect = 2; // the canvas default
-    const near = 5;
-    const far = 100;
-
-    const mainCamera = new THREE.PerspectiveCamera(
+  main() {
+    const mainCamera = new myCamera(
       75,
       window.innerWidth / window.innerHeight,
       1,
       1000
     );
 
-    // mainCamera.add(
-    //   new THREE.Mesh(
-    //     new THREE.SphereGeometry(100, 16, 8),
-    //     new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true })
-    //   )
-    // );
-
-    var geometry = new THREE.BoxGeometry(2, 2, 2).toNonIndexed();
-
-    var material = new THREE.MeshBasicMaterial({ color: 0x000000 });
-
-    var mesh = new THREE.Mesh(geometry, material);
-
-    mainCamera.add(mesh);
-
     this.cameras.push(mainCamera);
-    this.cameras.push(new THREE.PerspectiveCamera(60, 2, 0.1, 500));
-    this.cameras.push(new THREE.PerspectiveCamera(fov, aspect, near, far));
-
-    this.cameras[0].position.set(0, 1, 20);
+    this.cameras.push(new myCamera(60, 2, 0.1, 500));
+    this.cameras.push(new myCamera());
     this.cameras[1].position.set(40, 10, 30);
     this.cameras[1].lookAt(0, 5, 0);
     this.cameras[2].position.set(10, 10, 20);
@@ -74,64 +49,14 @@ export class CanvasBoxComponent implements OnInit {
       if (element != mainCamera) {
         const x = new OrbitControls(
           this.cameras[index],
-          eval('view' + (index + 1) + 'Elem')
+          document.querySelector('#view' + (index + 1)) as HTMLDivElement
         );
         x.target.set(0, 5, 0);
         x.update();
       }
       this.scene.add(element);
     });
-
-    this.manageGui();
-
-    const newRenderer = new myNewRenderer(this.scene, this.cameras);
+    const newRenderer = new myNewRenderer();
     newRenderer.startRender();
-  }
-
-  manageGui() {
-    class MinMaxGUIHelper {
-      obj: any;
-      minProp: string;
-      maxProp: string;
-      minDif: number;
-      constructor(obj: any, minProp: string, maxProp: string, minDif: number) {
-        this.obj = obj;
-        this.minProp = minProp;
-        this.maxProp = maxProp;
-        this.minDif = minDif;
-      }
-      get min() {
-        return this.obj[this.minProp];
-      }
-      set min(v) {
-        this.obj[this.minProp] = v;
-        this.obj[this.maxProp] = Math.max(
-          this.obj[this.maxProp],
-          v + this.minDif
-        );
-      }
-      get max() {
-        return this.obj[this.maxProp];
-      }
-      set max(v) {
-        this.obj[this.maxProp] = v;
-        this.min = this.min; // this will call the min setter
-      }
-    }
-
-    const gui = new GUI();
-    this.cameras.forEach((element, index) => {
-      const f1 = gui.addFolder('Camera' + (index + 1) + ' Controls');
-      f1.add(element, 'fov', 1, 180);
-      const minMaxGUIHelper = new MinMaxGUIHelper(
-        element,
-        'near',
-        'far',
-        0.1
-      );
-      f1.add(minMaxGUIHelper, 'min', 0.1, 50, 0.1).name('near');
-      f1.add(minMaxGUIHelper, 'max', 0.1, 50, 0.1).name('far');
-      f1.close();
-    });
   }
 }

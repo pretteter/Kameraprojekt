@@ -3,24 +3,19 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { myNewControls } from './myNewControls';
 
+import { scene, cameras, gui } from 'src/app/Collection/globalVariables';
+
 export class myNewRenderer {
   renderer: THREE.WebGLRenderer;
-  private scene: THREE.Scene;
-  private cameras: THREE.PerspectiveCamera[];
+  private scene = scene;
+  private cameras = cameras;
   private control: myNewControls;
 
-  constructor(scene: THREE.Scene, cameras: THREE.PerspectiveCamera[]) {
+  constructor() {
     const canvas = document.querySelector('#c');
-
     this.renderer = new THREE.WebGLRenderer({ canvas });
-    this.scene = scene;
-    this.cameras = cameras;
 
-    this.control = new myNewControls(
-      this.scene,
-      this.cameras[0],
-      this.renderer
-    );
+    this.control = new myNewControls(this.renderer);
   }
 
   startRender() {
@@ -29,9 +24,9 @@ export class myNewRenderer {
       const farm = gltf.scene;
       farm.name = 'FARM';
       this.scene.add(farm);
-      console.log(this.scene);
-      console.log(this.scene.getObjectByName('FARM'));
+      gui.show();
     });
+
     this.setLight();
     this.myRender();
   }
@@ -52,16 +47,7 @@ export class myNewRenderer {
   }
 
   private myRender() {
-    const view1Elem = document.querySelector('#view1') as HTMLDivElement;
-    const view2Elem = document.querySelector('#view2') as HTMLDivElement;
-    const view3Elem = document.querySelector('#view3') as HTMLDivElement;
-    // const cameraHelper = new THREE.CameraHelper(this.cameras[0]);
-    // const camera2Helper = new THREE.CameraHelper(this.cameras[1]);
-    const camera3Helper = new THREE.CameraHelper(this.cameras[2]);
-    // this.scene.add(cameraHelper);
-    // this.scene.add(camera2Helper);
-
-    this.scene.add(camera3Helper);
+    // this.scene.add(camera3Helper);
     this.resizeRendererToDisplaySize(this.renderer);
 
     // turn on the scissor
@@ -69,62 +55,64 @@ export class myNewRenderer {
 
     // render the original view
     {
-      const aspect = this.setScissorForElement(view1Elem);
+      const aspect = this.setScissorForElement(
+        document.querySelector('#view1') as HTMLDivElement
+      );
 
       // adjust the camera for this aspect
       this.cameras[0].aspect = aspect;
       this.cameras[0].updateProjectionMatrix();
-      // cameraHelper.update();
+      this.cameras[0].helper.update();
 
       // don't draw the camera helper in the original view
-      // cameraHelper.visible = false;
-      // camera2Helper.visible = false;
-      camera3Helper.visible = false;
+      // this.cameras[0].helper.visible = false;
+      // this.cameras[2].helper.visible = false;
 
       this.scene.background = new THREE.Color(0xffffff);
-
-      // render
-
       this.renderer.render(this.scene, this.cameras[0]);
-    }
-
-    // render the offset view
-    {
-      const aspect = this.setScissorForElement(view3Elem);
-
-      // adjust the camera for this aspect
-      this.cameras[2].aspect = aspect;
-      this.cameras[2].updateProjectionMatrix();
-      camera3Helper.update();
-
-      // don't draw the camera helper in the original view
-      // cameraHelper.visible = false;
-      // camera2Helper.visible = false;
-      camera3Helper.visible = false;
-
-      this.scene.background = new THREE.Color(0xffffff);
-
-      // render
-      this.renderer.render(this.scene, this.cameras[2]);
     }
 
     // render from the 2nd camera
     {
-      const aspect = this.setScissorForElement(view2Elem);
+      const aspect = this.setScissorForElement(
+        document.querySelector('#view2') as HTMLDivElement
+      );
 
       // adjust the camera for this aspect
       this.cameras[1].aspect = aspect;
       this.cameras[1].updateProjectionMatrix();
-      // camera2Helper.update();
+      this.cameras[1].helper.update();
 
       // draw the camera helper in the 2nd view
-      // cameraHelper.visible = true;
-      // camera2Helper.visible = true;
-      camera3Helper.visible = true;
+      this.cameras[0].helper.visible = true;
+      // this.cameras[1].helper.visible = false;
+      this.cameras[2].helper.visible = true;
 
       this.scene.background = new THREE.Color(0x000040);
       this.control.start();
       this.renderer.render(this.scene, this.cameras[1]);
+    }
+
+    // render the offset view
+
+    {
+      const aspect = this.setScissorForElement(
+        document.querySelector('#view3') as HTMLDivElement
+      );
+
+      // adjust the camera for this aspect
+      this.cameras[2].aspect = aspect;
+      this.cameras[2].updateProjectionMatrix();
+      this.cameras[2].helper.update();
+
+      // don't draw the camera helper in the original view
+      this.cameras[0].helper.visible = false;
+      this.cameras[2].helper.visible = false;
+
+      this.scene.background = new THREE.Color(0x99999);
+
+      // renders
+      this.renderer.render(this.scene, this.cameras[2]);
     }
 
     requestAnimationFrame(() => {
