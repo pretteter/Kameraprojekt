@@ -7,5 +7,5 @@ export const cameras: myCamera[] = [];
 // export const cameras: THREE.PerspectiveCamera[] = [];
 export const gui = new GUI();
 gui.hide();
-// const canvas = document.querySelector('#c');
-// export const renderer = new THREE.WebGLRenderer({ canvas });
+
+

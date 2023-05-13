@@ -1,49 +1,37 @@
 import * as THREE from 'three';
-import { myViewCamera } from './myViewCamera';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
-import { myNewRenderer } from './myNewRenderer';
-
 import { scene, cameras } from 'src/app/Collection/globalVariables';
+import { myCamera } from './myCamera';
 
-export class myNewControls {
-  moveForward = false;
-  moveBackward = false;
-  moveLeft = false;
-  moveRight = false;
-  canJump = false;
+export class myNewControls extends PointerLockControls {
+  private isMoveForward = false;
+  private moveBackward = false;
+  private moveLeft = false;
+  private isMoveRight = false;
+  private canJump = false;
 
-  objects = [];
-  vertex = new THREE.Vector3();
-  color = new THREE.Color();
+  private prevTime = performance.now();
+  private velocity = new THREE.Vector3();
+  private direction = new THREE.Vector3();
 
-  prevTime = performance.now();
-  velocity = new THREE.Vector3();
-  direction = new THREE.Vector3();
-
-  playerCamera = cameras[0];
-  scene = scene;
-  renderer: THREE.WebGLRenderer;
-  controls: PointerLockControls;
-
-  constructor(renderer: THREE.WebGLRenderer) {
-    this.renderer = renderer;
-
-    this.controls = new PointerLockControls(
-      this.playerCamera,
-      document.querySelector('#view1') as HTMLDivElement
+  constructor(cameraToControll?: myCamera, divElement?: HTMLDivElement) {
+    super(
+      cameraToControll ? cameraToControll : cameras[0],
+      divElement
+        ? divElement
+        : (document.querySelector('#view1') as HTMLDivElement)
     );
+  }
+
+  startControlls() {
     this.addEventListeners();
+    this.movement();
   }
 
-  start() {
-    this.animateControls();
-  }
-
-  private animateControls() {
+  private movement() {
     const time = performance.now();
 
-    if (this.controls.isLocked === true) {
+    if (this.isLocked === true) {
       const delta = (time - this.prevTime) / 1000;
 
       this.velocity.x -= this.velocity.x * 10.0 * delta;
@@ -51,54 +39,61 @@ export class myNewControls {
 
       this.velocity.y -= 75.0 * delta; // 75.0 = mass
 
-      this.direction.z = Number(this.moveForward) - Number(this.moveBackward);
-      this.direction.x = Number(this.moveRight) - Number(this.moveLeft);
+      this.direction.z = Number(this.isMoveForward) - Number(this.moveBackward);
+      this.direction.x = Number(this.isMoveRight) - Number(this.moveLeft);
       this.direction.normalize(); // this ensures consistent movements in all directions
 
-      if (this.moveForward || this.moveBackward)
+      if (this.isMoveForward || this.moveBackward)
         this.velocity.z -= this.direction.z * 40.0 * delta;
-      if (this.moveLeft || this.moveRight)
+      if (this.moveLeft || this.isMoveRight)
         this.velocity.x -= this.direction.x * 40.0 * delta;
 
-      this.controls.moveRight(-this.velocity.x * delta);
-      this.controls.moveForward(-this.velocity.z * delta);
+      this.moveRight(-this.velocity.x * delta);
+      this.moveForward(-this.velocity.z * delta);
 
-      this.controls.getObject().position.y += this.velocity.y * delta; // new behavior
+      this.getObject().position.y += this.velocity.y * delta; // new behavior
 
-      if (this.controls.getObject().position.y < 1) {
+      if (this.getObject().position.y < 1) {
         this.velocity.y = 0;
-        this.controls.getObject().position.y = 1;
+        this.getObject().position.y = 1;
 
         this.canJump = true;
       }
     }
     this.prevTime = time;
-    this.renderer.render(this.scene, this.playerCamera);
+    // this.renderer.render(this.scene, this.playerCamera);
   }
 
-  addEventListeners() {
+  private addEventListeners() {
+    this.addMovementBlocker();
+    this.addKeyBindings();
+  }
+
+  private addMovementBlocker() {
     const blocker = document.getElementById('blocker');
     const instructions = document.getElementById('instructions');
 
     instructions.addEventListener('click', () => {
-      this.controls.lock();
+      this.lock();
     });
 
-    this.controls.addEventListener('lock', () => {
+    this.addEventListener('lock', () => {
       instructions.style.display = 'none';
       blocker.style.display = 'none';
     });
 
-    this.controls.addEventListener('unlock', () => {
+    this.addEventListener('unlock', () => {
       blocker.style.display = 'block';
       instructions.style.display = '';
     });
+  }
 
+  private addKeyBindings() {
     const onKeyDown = (event: { code: any }) => {
       switch (event.code) {
         case 'ArrowUp':
         case 'KeyW':
-          this.moveForward = true;
+          this.isMoveForward = true;
           break;
 
         case 'ArrowLeft':
@@ -113,7 +108,7 @@ export class myNewControls {
 
         case 'ArrowRight':
         case 'KeyD':
-          this.moveRight = true;
+          this.isMoveRight = true;
           break;
 
         case 'Space':
@@ -127,7 +122,7 @@ export class myNewControls {
       switch (event.code) {
         case 'ArrowUp':
         case 'KeyW':
-          this.moveForward = false;
+          this.isMoveForward = false;
           break;
 
         case 'ArrowLeft':
@@ -142,7 +137,7 @@ export class myNewControls {
 
         case 'ArrowRight':
         case 'KeyD':
-          this.moveRight = false;
+          this.isMoveRight = false;
           break;
       }
     };

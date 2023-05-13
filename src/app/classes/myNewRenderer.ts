@@ -1,34 +1,36 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { myNewControls } from './myNewControls';
 
 import { scene, cameras, gui } from 'src/app/Collection/globalVariables';
 
-export class myNewRenderer {
-  renderer: THREE.WebGLRenderer;
+export class myNewRenderer extends THREE.WebGLRenderer {
   private scene = scene;
   private cameras = cameras;
   private control: myNewControls;
 
-  constructor() {
-    const canvas = document.querySelector('#c');
-    this.renderer = new THREE.WebGLRenderer({ canvas });
-
-    this.control = new myNewControls(this.renderer);
+  constructor(HTMLElement?: Element) {
+    let canvas: Element = HTMLElement
+      ? HTMLElement
+      : document.querySelector('#c');
+    super({ canvas });
+    this.control = new myNewControls();
   }
 
   startRender() {
-    const loader = new GLTFLoader().setPath('../../assets/');
-    loader.load('Cottage_FREE.gltf', (gltf) => {
+    this.loadGLTFObject('../../assets/', 'Cottage_FREE');
+    this.setLight();
+    this.myRender();
+    gui.show();
+  }
+
+  private loadGLTFObject(path: string, name: string) {
+    const loader = new GLTFLoader().setPath(path);
+    loader.load(name + '.gltf', (gltf) => {
       const farm = gltf.scene;
       farm.name = 'FARM';
       this.scene.add(farm);
-      gui.show();
     });
-
-    this.setLight();
-    this.myRender();
   }
 
   private setLight() {
@@ -47,11 +49,11 @@ export class myNewRenderer {
   }
 
   private myRender() {
-    // this.scene.add(camera3Helper);
-    this.resizeRendererToDisplaySize(this.renderer);
+    this.resizeRendererToDisplaySize(this);
 
     // turn on the scissor
-    this.renderer.setScissorTest(true);
+    this.setScissorTest(true);
+    this.control.startControlls();
 
     // render the original view
     {
@@ -65,11 +67,9 @@ export class myNewRenderer {
       this.cameras[0].helper.update();
 
       // don't draw the camera helper in the original view
-      // this.cameras[0].helper.visible = false;
-      // this.cameras[2].helper.visible = false;
 
       this.scene.background = new THREE.Color(0xffffff);
-      this.renderer.render(this.scene, this.cameras[0]);
+      this.render(this.scene, this.cameras[0]);
     }
 
     // render from the 2nd camera
@@ -85,16 +85,13 @@ export class myNewRenderer {
 
       // draw the camera helper in the 2nd view
       this.cameras[0].helper.visible = true;
-      // this.cameras[1].helper.visible = false;
       this.cameras[2].helper.visible = true;
 
       this.scene.background = new THREE.Color(0x000040);
-      this.control.start();
-      this.renderer.render(this.scene, this.cameras[1]);
+      this.render(this.scene, this.cameras[1]);
     }
 
     // render the offset view
-
     {
       const aspect = this.setScissorForElement(
         document.querySelector('#view3') as HTMLDivElement
@@ -112,7 +109,7 @@ export class myNewRenderer {
       this.scene.background = new THREE.Color(0x99999);
 
       // renders
-      this.renderer.render(this.scene, this.cameras[2]);
+      this.render(this.scene, this.cameras[2]);
     }
 
     requestAnimationFrame(() => {
@@ -137,8 +134,8 @@ export class myNewRenderer {
 
     // setup the scissor to only render to that part of the canvas
     const positiveYUpBottom = canvasRect.height - bottom;
-    this.renderer.setScissor(left, positiveYUpBottom, width, height);
-    this.renderer.setViewport(left, positiveYUpBottom, width, height);
+    this.setScissor(left, positiveYUpBottom, width, height);
+    this.setViewport(left, positiveYUpBottom, width, height);
 
     // return the aspect
     return width / height;
