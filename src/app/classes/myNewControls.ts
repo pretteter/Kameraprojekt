@@ -21,10 +21,10 @@ export class myNewControls extends PointerLockControls {
         ? divElement
         : (document.querySelector('#view1') as HTMLDivElement)
     );
+    this.addEventListeners();
   }
 
   startControlls() {
-    this.addEventListeners();
     this.movement();
   }
 

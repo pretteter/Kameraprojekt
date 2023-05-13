@@ -49,6 +49,7 @@ export class myNewRenderer extends THREE.WebGLRenderer {
   }
 
   private myRender() {
+    this.clear();
     this.resizeRendererToDisplaySize(this);
 
     // turn on the scissor
