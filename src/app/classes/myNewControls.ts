@@ -1,148 +1,149 @@
-import * as THREE from 'three';
-import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
-import { scene, cameras } from 'src/app/Collection/globalVariables';
-import { myCamera } from './myCamera';
+import * as THREE from "three";
+import { PointerLockControls } from "three/examples/jsm/controls/PointerLockControls.js";
+import { scene, cameras, player } from "src/app/Collection/globalVariables";
+import { myCamera } from "./myCamera";
 
 export class myNewControls extends PointerLockControls {
-  private isMoveForward = false;
-  private moveBackward = false;
-  private moveLeft = false;
-  private isMoveRight = false;
-  private canJump = false;
+    private isMoveForward = false;
+    private moveBackward = false;
+    private moveLeft = false;
+    private isMoveRight = false;
+    private canJump = false;
 
-  private prevTime = performance.now();
-  private velocity = new THREE.Vector3();
-  private direction = new THREE.Vector3();
+    private prevTime = performance.now();
+    private velocity = new THREE.Vector3();
+    private direction = new THREE.Vector3();
 
-  constructor(cameraToControll?: myCamera, divElement?: HTMLDivElement) {
-    super(
-      cameraToControll ? cameraToControll : cameras[0],
-      divElement
-        ? divElement
-        : (document.querySelector('#view1') as HTMLDivElement)
-    );
-    this.addEventListeners();
-  }
-
-  startControlls() {
-    this.movement();
-  }
-
-  private movement() {
-    const time = performance.now();
-
-    if (this.isLocked === true) {
-      const delta = (time - this.prevTime) / 1000;
-
-      this.velocity.x -= this.velocity.x * 10.0 * delta;
-      this.velocity.z -= this.velocity.z * 10.0 * delta;
-
-      this.velocity.y -= 75.0 * delta; // 75.0 = mass
-
-      this.direction.z = Number(this.isMoveForward) - Number(this.moveBackward);
-      this.direction.x = Number(this.isMoveRight) - Number(this.moveLeft);
-      this.direction.normalize(); // this ensures consistent movements in all directions
-
-      if (this.isMoveForward || this.moveBackward)
-        this.velocity.z -= this.direction.z * 40.0 * delta;
-      if (this.moveLeft || this.isMoveRight)
-        this.velocity.x -= this.direction.x * 40.0 * delta;
-
-      this.moveRight(-this.velocity.x * delta);
-      this.moveForward(-this.velocity.z * delta);
-
-      this.getObject().position.y += this.velocity.y * delta; // new behavior
-
-      if (this.getObject().position.y < 1) {
-        this.velocity.y = 0;
-        this.getObject().position.y = 1;
-
-        this.canJump = true;
-      }
+    constructor(cameraToControll?: myCamera, divElement?: HTMLDivElement) {
+        super(
+            cameraToControll ? cameraToControll : player,
+            divElement
+                ? divElement
+                : (document.querySelector("#view1") as HTMLDivElement)
+        );
+        this.addEventListeners();
     }
-    this.prevTime = time;
-    // this.renderer.render(this.scene, this.playerCamera);
-  }
 
-  private addEventListeners() {
-    this.addMovementBlocker();
-    this.addKeyBindings();
-  }
+    startControlls() {
+        this.movement();
+    }
 
-  private addMovementBlocker() {
-    const blocker = document.getElementById('blocker');
-    const instructions = document.getElementById('instructions');
+    private movement() {
+        const time = performance.now();
 
-    instructions.addEventListener('click', () => {
-      this.lock();
-    });
+        if (this.isLocked === true) {
+            const delta = (time - this.prevTime) / 1000;
 
-    this.addEventListener('lock', () => {
-      instructions.style.display = 'none';
-      blocker.style.display = 'none';
-    });
+            this.velocity.x -= this.velocity.x * 10.0 * delta;
+            this.velocity.z -= this.velocity.z * 10.0 * delta;
 
-    this.addEventListener('unlock', () => {
-      blocker.style.display = 'block';
-      instructions.style.display = '';
-    });
-  }
+            this.velocity.y -= 75.0 * delta; // 75.0 = mass
 
-  private addKeyBindings() {
-    const onKeyDown = (event: { code: any }) => {
-      switch (event.code) {
-        case 'ArrowUp':
-        case 'KeyW':
-          this.isMoveForward = true;
-          break;
+            this.direction.z =
+                Number(this.isMoveForward) - Number(this.moveBackward);
+            this.direction.x = Number(this.isMoveRight) - Number(this.moveLeft);
+            this.direction.normalize(); // this ensures consistent movements in all directions
 
-        case 'ArrowLeft':
-        case 'KeyA':
-          this.moveLeft = true;
-          break;
+            if (this.isMoveForward || this.moveBackward)
+                this.velocity.z -= this.direction.z * 40.0 * delta;
+            if (this.moveLeft || this.isMoveRight)
+                this.velocity.x -= this.direction.x * 40.0 * delta;
 
-        case 'ArrowDown':
-        case 'KeyS':
-          this.moveBackward = true;
-          break;
+            this.moveRight(-this.velocity.x * delta);
+            this.moveForward(-this.velocity.z * delta);
 
-        case 'ArrowRight':
-        case 'KeyD':
-          this.isMoveRight = true;
-          break;
+            this.getObject().position.y += this.velocity.y * delta; // new behavior
 
-        case 'Space':
-          if (this.canJump === true) this.velocity.y += 20;
-          this.canJump = false;
-          break;
-      }
-    };
+            if (this.getObject().position.y < 1) {
+                this.velocity.y = 0;
+                this.getObject().position.y = 1;
 
-    const onKeyUp = (event: { code: any }) => {
-      switch (event.code) {
-        case 'ArrowUp':
-        case 'KeyW':
-          this.isMoveForward = false;
-          break;
+                this.canJump = true;
+            }
+        }
+        this.prevTime = time;
+        // this.renderer.render(this.scene, this.playerCamera);
+    }
 
-        case 'ArrowLeft':
-        case 'KeyA':
-          this.moveLeft = false;
-          break;
+    private addEventListeners() {
+        this.addMovementBlocker();
+        this.addKeyBindings();
+    }
 
-        case 'ArrowDown':
-        case 'KeyS':
-          this.moveBackward = false;
-          break;
+    private addMovementBlocker() {
+        const blocker = document.getElementById("blocker");
+        const instructions = document.getElementById("instructions");
 
-        case 'ArrowRight':
-        case 'KeyD':
-          this.isMoveRight = false;
-          break;
-      }
-    };
+        instructions.addEventListener("click", () => {
+            this.lock();
+        });
 
-    document.addEventListener('keydown', onKeyDown);
-    document.addEventListener('keyup', onKeyUp);
-  }
+        this.addEventListener("lock", () => {
+            instructions.style.display = "none";
+            blocker.style.display = "none";
+        });
+
+        this.addEventListener("unlock", () => {
+            blocker.style.display = "block";
+            instructions.style.display = "";
+        });
+    }
+
+    private addKeyBindings() {
+        const onKeyDown = (event: { code: any }) => {
+            switch (event.code) {
+                case "ArrowUp":
+                case "KeyW":
+                    this.isMoveForward = true;
+                    break;
+
+                case "ArrowLeft":
+                case "KeyA":
+                    this.moveLeft = true;
+                    break;
+
+                case "ArrowDown":
+                case "KeyS":
+                    this.moveBackward = true;
+                    break;
+
+                case "ArrowRight":
+                case "KeyD":
+                    this.isMoveRight = true;
+                    break;
+
+                case "Space":
+                    if (this.canJump === true) this.velocity.y += 20;
+                    this.canJump = false;
+                    break;
+            }
+        };
+
+        const onKeyUp = (event: { code: any }) => {
+            switch (event.code) {
+                case "ArrowUp":
+                case "KeyW":
+                    this.isMoveForward = false;
+                    break;
+
+                case "ArrowLeft":
+                case "KeyA":
+                    this.moveLeft = false;
+                    break;
+
+                case "ArrowDown":
+                case "KeyS":
+                    this.moveBackward = false;
+                    break;
+
+                case "ArrowRight":
+                case "KeyD":
+                    this.isMoveRight = false;
+                    break;
+            }
+        };
+
+        document.addEventListener("keydown", onKeyDown);
+        document.addEventListener("keyup", onKeyUp);
+    }
 }
