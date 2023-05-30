@@ -2,13 +2,13 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { myNewControls } from "./myNewControls";
 
-
 import {
     scene,
     cameras,
     gui,
     player,
 } from "src/app/Collection/globalVariables";
+import { myCamera } from "./myCamera";
 
 export class myNewRenderer extends THREE.WebGLRenderer {
     private scene = scene;
@@ -27,6 +27,9 @@ export class myNewRenderer extends THREE.WebGLRenderer {
     startRender() {
         this.loadGLTFObject("../../assets/", "Cottage_FREE");
         this.setLight();
+        // this.cameras[1].rotation.y = Math.PI;
+        console.log("vor Render   " + this.cameras[1].rotation.y);
+
         this.myRender();
         gui.show();
     }
@@ -46,22 +49,16 @@ export class myNewRenderer extends THREE.WebGLRenderer {
         this.scene.add(light1);
 
         this.scene.fog = new THREE.Fog(0xffffff, 0, 100);
-        // const color = 0xffffff;
-        // const intensity = 1;
-        // const light = new THREE.DirectionalLight(color, intensity);
-        // light.position.set(0, 10, 0);
-        // light.target.position.set(-5, 0, 0);
-        // this.scene.add(light);
-        // this.scene.add(light.target);
     }
 
     private myRender() {
         this.clear();
         this.resizeRendererToDisplaySize(this);
-
         // turn on the scissor
         this.setScissorTest(true);
         this.control.startControlls();
+        gui.updateDisplay();
+        // this.manageCameraControls();
 
         // render the original view
         {
@@ -85,18 +82,20 @@ export class myNewRenderer extends THREE.WebGLRenderer {
             const aspect = this.setScissorForElement(
                 document.querySelector("#view2") as HTMLDivElement
             );
-
+            const cam = this.cameras[0];
             // adjust the camera for this aspect
-            this.cameras[1].aspect = aspect;
-            this.cameras[1].updateProjectionMatrix();
-            this.cameras[1].helper.update();
+            cam.aspect = aspect;
+
+            cam.updateProjectionMatrix();
+            cam.helper.update();
 
             // draw the camera helper in the 2nd view
             this.player.helper.visible = true;
-            this.cameras[2].helper.visible = true;
+            // this.cameras[1].helper.visible = true;
 
             this.scene.background = new THREE.Color(0x000040);
-            this.render(this.scene, this.cameras[1]);
+            cam.followPlayer ? cam.lookAt(player.position) : "";
+            this.render(this.scene, cam);
         }
 
         // render the offset view
@@ -104,21 +103,20 @@ export class myNewRenderer extends THREE.WebGLRenderer {
             const aspect = this.setScissorForElement(
                 document.querySelector("#view3") as HTMLDivElement
             );
-
+            const cam = this.cameras[1];
             // adjust the camera for this aspect
-            this.cameras[2].aspect = aspect;
-            this.cameras[2].updateProjectionMatrix();
-            this.cameras[2].helper.update();
+            cam.aspect = aspect;
+            cam.updateProjectionMatrix();
+            cam.helper.update();
 
             // don't draw the camera helper in the original view
             this.player.helper.visible = false;
-            this.cameras[2].helper.visible = false;
+            cam.helper.visible = false;
 
             this.scene.background = new THREE.Color(0x99999);
-
+            cam.followPlayer ? cam.lookAt(player.position) : "";
             // renders
-            this.render(this.scene, this.cameras[2]);
-   
+            this.render(this.scene, cam);
         }
 
         requestAnimationFrame(() => {
@@ -160,5 +158,13 @@ export class myNewRenderer extends THREE.WebGLRenderer {
             renderer.setSize(width, height, false);
         }
         return needResize;
+    }
+
+    manageCameraControls() {
+        this.cameras.forEach((cam) => {
+            if (cam.followPlayer) {
+                cam.disableControls();
+            } else cam.enableControls();
+        });
     }
 }
