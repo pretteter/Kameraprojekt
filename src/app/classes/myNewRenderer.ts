@@ -29,7 +29,9 @@ export class myNewRenderer extends THREE.WebGLRenderer {
         this.setLight();
         // this.cameras[1].rotation.y = Math.PI;
         console.log("vor Render   " + this.cameras[1].rotation.y);
-
+        // this.cameras[1].children.forEach((c) => {
+        //     console.log(c);
+        // });
         this.myRender();
         gui.show();
     }
@@ -74,6 +76,9 @@ export class myNewRenderer extends THREE.WebGLRenderer {
             // don't draw the camera helper in the original view
 
             this.scene.background = new THREE.Color(0xffffff);
+            this.cameras[1].getObjectByName("CAM")
+            ? (this.cameras[1].getObjectByName("CAM").visible = true)
+            : "";
             this.render(this.scene, this.player);
         }
 
@@ -95,6 +100,14 @@ export class myNewRenderer extends THREE.WebGLRenderer {
 
             this.scene.background = new THREE.Color(0x000040);
             cam.followPlayer ? cam.lookAt(player.position) : "";
+            // console.log(cam.getObjectByName("CAM")?.visible);
+            cam.getObjectByName("CAM")
+                ? (cam.getObjectByName("CAM").visible = false)
+                : "";
+            this.cameras[1].getObjectByName("CAM")
+                ? (this.cameras[1].getObjectByName("CAM").visible = true)
+                : "";
+
             this.render(this.scene, cam);
         }
 
@@ -115,6 +128,14 @@ export class myNewRenderer extends THREE.WebGLRenderer {
 
             this.scene.background = new THREE.Color(0x99999);
             cam.followPlayer ? cam.lookAt(player.position) : "";
+
+            cam.getObjectByName("CAM")
+                ? (cam.getObjectByName("CAM").visible = false)
+                : "";
+            this.cameras[0].getObjectByName("CAM")
+                ? (this.cameras[0].getObjectByName("CAM").visible = true)
+                : "";
+
             // renders
             this.render(this.scene, cam);
         }

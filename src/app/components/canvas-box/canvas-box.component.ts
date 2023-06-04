@@ -28,17 +28,7 @@ export class CanvasBoxComponent implements OnInit {
     }
 
     buildCameraArray() {
-        this.cameras.push(
-            new myCamera(
-                new THREE.Vector3(40, 10, 30),
-                new THREE.Euler(0, 1, 0)
-            )
-        );
-        this.cameras.push(
-            new myCamera(
-                new THREE.Vector3(10, 10, 20),
-                new THREE.Euler(0, 1, 0)
-            )
-        );
+        this.cameras.push(new myCamera(new THREE.Vector3(40, 10, 30)));
+        this.cameras.push(new myCamera(new THREE.Vector3(10, 10, 20)));
     }
 }

@@ -7,6 +7,7 @@ import {
     player,
 } from "src/app/Collection/globalVariables";
 import { myPlayer } from "./myPlayer";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
 export class myCamera extends THREE.PerspectiveCamera {
     override fov: number;
@@ -26,7 +27,6 @@ export class myCamera extends THREE.PerspectiveCamera {
 
     constructor(
         position: THREE.Vector3,
-        rotation: THREE.Euler,
         fov?: number,
         aspect?: number,
         near?: number,
@@ -65,7 +65,10 @@ export class myCamera extends THREE.PerspectiveCamera {
         }
 
         this.addCameraHelper();
-        this.addModel();
+        // this.addModel();
+        this instanceof myPlayer
+            ? ""
+            : this.loadGLTFObject("../../assets/", "streetCamera_1");
         this.buildGui();
         this.scene.add(this);
     }
@@ -96,11 +99,22 @@ export class myCamera extends THREE.PerspectiveCamera {
     }
 
     addModel() {
-        const geometry = new THREE.BoxGeometry(2, 2, 2).toNonIndexed();
+        const geometry = new THREE.BoxGeometry(1, 1, 1).toNonIndexed();
         const material = new THREE.MeshBasicMaterial({ color: 0x000000 });
         const mesh = new THREE.Mesh(geometry, material);
         this.add(mesh);
     }
+
+    private loadGLTFObject(path: string, name: string) {
+        const loader = new GLTFLoader().setPath(path);
+        loader.load(name + ".gltf", (gltf) => {
+            const cam = gltf.scene;
+            cam.name = "CAM";
+            this.add(cam);
+            console.log(this.getObjectByName("CAM"));
+        });
+    }
+
     disableControls() {
         this.orbitControls.enabled = false;
     }

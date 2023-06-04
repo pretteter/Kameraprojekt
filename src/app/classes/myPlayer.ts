@@ -14,7 +14,7 @@ export class myPlayer extends myCamera {
         near?: number,
         far?: number
     ) {
-        super(position, rotation, fov, aspect, near, far);
+        super(position, fov, aspect, near, far);
         fov ? (this.fov = fov) : "";
         aspect ? (this.aspect = aspect) : "";
         near ? (this.near = near) : "";
