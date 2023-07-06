@@ -19,7 +19,7 @@ export class myCamera extends THREE.PerspectiveCamera {
     private scene = scene;
     private cameras = cameras;
     orbitControls: OrbitControls;
-    followPlayer: boolean = true;
+    followPlayer: boolean = false;
     helper: THREE.CameraHelper = new THREE.CameraHelper(this);
 
     static amountOfInstances: number = 0;
@@ -27,6 +27,7 @@ export class myCamera extends THREE.PerspectiveCamera {
 
     constructor(
         position: THREE.Vector3,
+        rotation?: THREE.Euler,
         fov?: number,
         aspect?: number,
         near?: number,
@@ -41,6 +42,12 @@ export class myCamera extends THREE.PerspectiveCamera {
         this.position.set(position.x, position.y, position.z);
         // this.rotation.set(rotation.x, rotation.y, rotation.z);
 
+        // rotation ? (this.rotation = rotation) : "";
+        if (rotation) {
+            this.rotation.x = rotation.x;
+            this.rotation.y = rotation.y;
+            this.rotation.z = rotation.z;
+        }
         fov ? (this.fov = fov) : "";
         aspect ? (this.aspect = aspect) : "";
         near ? (this.near = near) : "";
@@ -48,6 +55,16 @@ export class myCamera extends THREE.PerspectiveCamera {
 
         this.scene = scene;
 
+        this.addCameraHelper();
+        // this.addModel();
+        this instanceof myPlayer
+            ? ""
+            : this.loadGLTFObject("../../assets/", "streetCamera_1");
+        this.buildGui();
+        this.scene.add(this);
+    }
+
+    addControls() {
         if (!(this instanceof myPlayer)) {
             this.orbitControls = new OrbitControls(
                 this,
@@ -63,14 +80,6 @@ export class myCamera extends THREE.PerspectiveCamera {
             this.orbitControls.enabled = false;
             this.orbitControls.enableZoom = false;
         }
-
-        this.addCameraHelper();
-        // this.addModel();
-        this instanceof myPlayer
-            ? ""
-            : this.loadGLTFObject("../../assets/", "streetCamera_1");
-        this.buildGui();
-        this.scene.add(this);
     }
 
     private addCameraHelper() {
@@ -79,30 +88,47 @@ export class myCamera extends THREE.PerspectiveCamera {
     }
 
     private buildGui() {
-        const x = gui.addFolder("Camera" + this.instanceId + " Controls");
-        x.add(this, "fov", 1, 180);
-        x.add(this, "near", 1, 50, 0.1);
-        x.add(this, "far", 1, 50, 0.1);
-        x.add(this.rotation, "x", 0, 2 * Math.PI, 0.1);
-        x.add(this.rotation, "y", 0, 2 * Math.PI, 0.1);
-        x.add(this.rotation, "z", 0, 2 * Math.PI, 0.1);
-        var params = { followPlayer: this.followPlayer };
-        x.add(params, "followPlayer").onChange(() => {
-            this.followPlayer = !this.followPlayer;
+        if (!(this instanceof myPlayer)) {
+            const x = gui.addFolder("Camera " + this.instanceId + " Controls");
+            x.add(this, "fov", 1, 180);
+            x.add(this, "near", 1, 50, 0.1);
+            x.add(this, "far", 1, 50, 0.1);
+            x.add(this.rotation, "x", 0, 2 * Math.PI, 0.1);
+            x.add(this.rotation, "y", 0, 2 * Math.PI, 0.1);
+            x.add(this.rotation, "z", 0, 2 * Math.PI, 0.1);
+            var params = {
+                followPlayer: this.followPlayer,
+                helper: this.helper.visible,
+            };
+            x.add(params, "followPlayer").onChange(() => {
+                this.followPlayer = !this.followPlayer;
 
-            this.followPlayer === true
-                ? this.disableControls()
-                : this.enableControls();
-        });
+                this.followPlayer === true
+                    ? this.disableControls()
+                    : this.enableControls();
+            });
+            x.add(params, "helper").onChange(() => {
+                this.helper.visible = !this.helper.visible;
+            });
 
-        x.close();
-    }
-
-    addModel() {
-        const geometry = new THREE.BoxGeometry(1, 1, 1).toNonIndexed();
-        const material = new THREE.MeshBasicMaterial({ color: 0x000000 });
-        const mesh = new THREE.Mesh(geometry, material);
-        this.add(mesh);
+            x.close();
+        } else {
+            // const x = gui.addFolder("Camera" + this.instanceId + " Controls");
+            // x.add(this, "fov", 1, 180);
+            // x.add(this, "near", 1, 50, 0.1);
+            // x.add(this, "far", 1, 50, 0.1);
+            // x.add(this.rotation, "x", 0, 2 * Math.PI, 0.1);
+            // x.add(this.rotation, "y", 0, 2 * Math.PI, 0.1);
+            // x.add(this.rotation, "z", 0, 2 * Math.PI, 0.1);
+            // var params = { followPlayer: this.followPlayer };
+            // x.add(params, "followPlayer").onChange(() => {
+            //     this.followPlayer = !this.followPlayer;
+            //     this.followPlayer === true
+            //         ? this.disableControls()
+            //         : this.enableControls();
+            // });
+            // x.close();
+        }
     }
 
     private loadGLTFObject(path: string, name: string) {

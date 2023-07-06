@@ -14,6 +14,9 @@ export class myNewControls extends PointerLockControls {
     private velocity = new THREE.Vector3();
     private direction = new THREE.Vector3();
 
+    private raycaster = new THREE.Raycaster();
+    private sceneMeshes: THREE.Mesh[] = [];
+
     constructor(cameraToControll?: myCamera, divElement?: HTMLDivElement) {
         super(
             cameraToControll ? cameraToControll : player,
@@ -37,7 +40,7 @@ export class myNewControls extends PointerLockControls {
             this.velocity.x -= this.velocity.x * 10.0 * delta;
             this.velocity.z -= this.velocity.z * 10.0 * delta;
 
-            this.velocity.y -= 75.0 * delta; // 75.0 = mass
+            player.drone ? "" : (this.velocity.y -= 75.0 * delta); // 75.0 = mass
 
             this.direction.z =
                 Number(this.isMoveForward) - Number(this.moveBackward);
@@ -89,6 +92,20 @@ export class myNewControls extends PointerLockControls {
         });
     }
 
+    createNewCamFromPlayerView() {
+        cameras.push(
+            new myCamera(
+                new THREE.Vector3(
+                    player.position.x,
+                    player.position.y,
+                    player.position.z
+                ),
+                player.rotation,
+                player.fov
+            )
+        );
+    }
+
     private addKeyBindings() {
         const onKeyDown = (event: { code: any }) => {
             switch (event.code) {
@@ -113,8 +130,22 @@ export class myNewControls extends PointerLockControls {
                     break;
 
                 case "Space":
-                    if (this.canJump === true) this.velocity.y += 20;
-                    this.canJump = false;
+                    if (!player.drone) {
+                        if (this.canJump === true) {
+                            this.velocity.y += 20;
+                            this.canJump = false;
+                        }
+                    } else {
+                        this.velocity.y = 5;
+                    }
+
+                    console.log("vel in Sprung " + this.velocity.y);
+
+                    break;
+
+                case "ControlLeft":
+                    if (!player.drone) break;
+                    this.velocity.y = -5;
                     break;
             }
         };
@@ -139,6 +170,17 @@ export class myNewControls extends PointerLockControls {
                 case "ArrowRight":
                 case "KeyD":
                     this.isMoveRight = false;
+                    break;
+
+                case "Space":
+                case "ControlLeft":
+                    if (!player.drone) break;
+                    // if (this.canJump === true)
+                    this.velocity.y = 0;
+                    break;
+
+                case "Enter":
+                    this.createNewCamFromPlayerView();
                     break;
             }
         };

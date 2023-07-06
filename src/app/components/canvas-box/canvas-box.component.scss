@@ -1,37 +1,50 @@
 #c {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-.split {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 71%;
-  display: flex;
-
-  div {
     width: 100%;
     height: 100%;
-  }
+    display: block;
+}
+.split {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    // aspect-ratio: 16/9;
+
+    div {
+        width: 100%;
+        height: 71%;
+        // padding-top: 56.25%;
+    }
+
+  
+    // div:after {
+    //     content: "\a";
+    //     white-space: pre;
+    // }
+}
+
+#view2 {
+    color: black;
+    // transform: translateY(50px);
 }
 
 #blocker {
-  background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.5);
 }
 
 #instructions {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 
-  text-align: center;
-  font-size: large;
-  cursor: pointer;
+    text-align: center;
+    font-size: large;
+    cursor: pointer;
 
-  p {
-    color: white;
-  }
+    p {
+        color: white;
+    }
 }

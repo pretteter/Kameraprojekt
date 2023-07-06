@@ -1,18 +1,26 @@
 <canvas id="c"></canvas>
-<div class="split">
-  <div id="view1" tabindex="1">
-    <div id="blocker">
-      <div id="instructions">
-        <p style="font-size: xx-large">Click to move</p>
-        <p style="font-size:large">
-          Move: WASD<br />
-          Jump: SPACE<br />
-          Look: MOUSE<br />
-          Stop: ESC
-        </p>
-      </div>
+<div id="views">
+    <div class="split">
+        <div id="view1" tabindex="1">
+            <div id="blocker">
+                <div id="instructions">
+                    <p style="font-size: xx-large">Click to move</p>
+                    <p style="font-size: large">
+                        Move: WASD<br />
+                        Jump/UP: SPACE<br />
+                        Down: Strg <br />
+                        Look: MOUSE<br />
+                        Stop: ESC <br />
+                        Cam: Enter
+                    </p>
+                </div>
+            </div>
+        </div>
+        <ng-container *ngFor="let cam of cameras; let i = index">
+            <div
+                [id]="'view' + cam.instanceId"
+                [tabindex]="cam.instanceId"
+            ></div>
+        </ng-container>
     </div>
-  </div>
-  <div id="view2" tabindex="2"></div>
-  <div id="view3" tabindex="3"></div>
 </div>

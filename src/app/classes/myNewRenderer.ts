@@ -16,19 +16,22 @@ export class myNewRenderer extends THREE.WebGLRenderer {
     private control: myNewControls;
     private player = player;
 
+    private raycaster = new THREE.Raycaster();
+
     constructor(HTMLElement?: Element) {
         let canvas: Element = HTMLElement
             ? HTMLElement
             : document.querySelector("#c");
         super({ canvas });
         this.control = new myNewControls();
+        // this.createHTMLElementsForCameras();
     }
 
     startRender() {
         this.loadGLTFObject("../../assets/", "Cottage_FREE");
         this.setLight();
         // this.cameras[1].rotation.y = Math.PI;
-        console.log("vor Render   " + this.cameras[1].rotation.y);
+        // console.log("vor Render   " + this.cameras[1].rotation.y);
         // this.cameras[1].children.forEach((c) => {
         //     console.log(c);
         // });
@@ -56,89 +59,14 @@ export class myNewRenderer extends THREE.WebGLRenderer {
     private myRender() {
         this.clear();
         this.resizeRendererToDisplaySize(this);
-        // turn on the scissor
+
         this.setScissorTest(true);
         this.control.startControlls();
+
         gui.updateDisplay();
-        // this.manageCameraControls();
 
-        // render the original view
-        {
-            const aspect = this.setScissorForElement(
-                document.querySelector("#view1") as HTMLDivElement
-            );
-
-            // adjust the camera for this aspect
-            this.player.aspect = aspect;
-            this.player.updateProjectionMatrix();
-            this.player.helper.update();
-
-            // don't draw the camera helper in the original view
-
-            this.scene.background = new THREE.Color(0xffffff);
-            this.cameras[1].getObjectByName("CAM")
-            ? (this.cameras[1].getObjectByName("CAM").visible = true)
-            : "";
-            this.render(this.scene, this.player);
-        }
-
-        // render from the 2nd camera
-        {
-            const aspect = this.setScissorForElement(
-                document.querySelector("#view2") as HTMLDivElement
-            );
-            const cam = this.cameras[0];
-            // adjust the camera for this aspect
-            cam.aspect = aspect;
-
-            cam.updateProjectionMatrix();
-            cam.helper.update();
-
-            // draw the camera helper in the 2nd view
-            this.player.helper.visible = true;
-            // this.cameras[1].helper.visible = true;
-
-            this.scene.background = new THREE.Color(0x000040);
-            cam.followPlayer ? cam.lookAt(player.position) : "";
-            // console.log(cam.getObjectByName("CAM")?.visible);
-            cam.getObjectByName("CAM")
-                ? (cam.getObjectByName("CAM").visible = false)
-                : "";
-            this.cameras[1].getObjectByName("CAM")
-                ? (this.cameras[1].getObjectByName("CAM").visible = true)
-                : "";
-
-            this.render(this.scene, cam);
-        }
-
-        // render the offset view
-        {
-            const aspect = this.setScissorForElement(
-                document.querySelector("#view3") as HTMLDivElement
-            );
-            const cam = this.cameras[1];
-            // adjust the camera for this aspect
-            cam.aspect = aspect;
-            cam.updateProjectionMatrix();
-            cam.helper.update();
-
-            // don't draw the camera helper in the original view
-            this.player.helper.visible = false;
-            cam.helper.visible = false;
-
-            this.scene.background = new THREE.Color(0x99999);
-            cam.followPlayer ? cam.lookAt(player.position) : "";
-
-            cam.getObjectByName("CAM")
-                ? (cam.getObjectByName("CAM").visible = false)
-                : "";
-            this.cameras[0].getObjectByName("CAM")
-                ? (this.cameras[0].getObjectByName("CAM").visible = true)
-                : "";
-
-            // renders
-            this.render(this.scene, cam);
-        }
+        this.renderPlayerView();
+        this.renderAllCameraViews();
 
         requestAnimationFrame(() => {
             this.myRender();
@@ -186,6 +114,81 @@ export class myNewRenderer extends THREE.WebGLRenderer {
             if (cam.followPlayer) {
                 cam.disableControls();
             } else cam.enableControls();
+        });
+    }
+
+    // createHTMLElementsForCameras() {
+    //     const div = document.querySelector(".split") as HTMLDivElement;
+    //     this.cameras.forEach((cam) => {
+    //         let camView = document.createElement("div");
+    //         camView.id = "view" + cam.instanceId.toString();
+    //         camView.setAttribute("tabindex", cam.instanceId.toString());
+    //         div.appendChild(camView);
+    //     });
+    // }
+
+    renderAllCameraViews() {
+        this.cameras.forEach((cam) => {
+            this.renderCameraView(cam);
+        });
+    }
+
+    private renderPlayerView() {
+        const aspect = this.setScissorForElement(
+            document.querySelector("#view1") as HTMLDivElement
+        );
+
+        // adjust the camera for this aspect
+        this.player.aspect = aspect;
+        // this.player.aspect = 16 / 9;
+        this.player.updateProjectionMatrix();
+        this.player.helper.update();
+
+        // don't draw the camera helper in the original view
+
+        this.scene.background = new THREE.Color(0xffffff);
+        // this.cameras[1].getObjectByName("CAM")
+        //     ? (this.cameras[1].getObjectByName("CAM").visible = true)
+        //     : "";
+        this.addCamerasObjectFromPlayerView();
+        this.render(this.scene, this.player);
+    }
+
+    private renderCameraView(cam: myCamera) {
+        const aspect = this.setScissorForElement(
+            document.querySelector("#view" + cam.instanceId) as HTMLDivElement
+        );
+        // const cam = this.cameras[1];
+
+        // adjust the camera for this aspect
+        cam.aspect = aspect;
+        // cam.aspect = 9/16;
+        cam.updateProjectionMatrix();
+        cam.helper.update();
+
+        this.scene.background = new THREE.Color(0x99999);
+        cam.followPlayer ? cam.lookAt(player.position) : "";
+
+        this.removeCameraObjectFromOwnView(cam);
+
+        // renders
+        this.render(this.scene, cam);
+    }
+
+    private removeCameraObjectFromOwnView(cam: myCamera) {
+        cam.getObjectByName("CAM")
+            ? (cam.getObjectByName("CAM").visible = false)
+            : "";
+        // cam.getObjectByName("CAM")
+        //     ? (cam.getObjectByName("CAM").visible = true)
+        //     : "";
+    }
+
+    private addCamerasObjectFromPlayerView() {
+        this.cameras.forEach((cam) => {
+            cam.getObjectByName("CAM")
+                ? (cam.getObjectByName("CAM").visible = true)
+                : "";
         });
     }
 }
