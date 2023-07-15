@@ -55,6 +55,8 @@ export class myCamera extends THREE.PerspectiveCamera {
 
         this.scene = scene;
 
+        // this.addControls();
+
         this.addCameraHelper();
         // this.addModel();
         this instanceof myPlayer
@@ -69,7 +71,7 @@ export class myCamera extends THREE.PerspectiveCamera {
             this.orbitControls = new OrbitControls(
                 this,
                 document.querySelector(
-                    "#view" + myCamera.amountOfInstances
+                    "#view" + this.instanceId
                 ) as HTMLDivElement
             );
             this.orbitControls.target.set(
@@ -77,7 +79,7 @@ export class myCamera extends THREE.PerspectiveCamera {
                 this.position.y,
                 this.position.z
             );
-            this.orbitControls.enabled = false;
+            this.orbitControls.enabled = true;
             this.orbitControls.enableZoom = false;
         }
     }

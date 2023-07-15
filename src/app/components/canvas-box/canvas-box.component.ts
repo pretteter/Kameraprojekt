@@ -23,15 +23,17 @@ export class CanvasBoxComponent implements OnInit {
     cameras = cameras;
     private player = player;
 
+    
+
     constructor(private cdr: ChangeDetectorRef) {}
 
     ngOnInit(): void {
         this.buildCameraArray();
-        // this.createHTMLElementsForCameras();
         this.cameras.forEach((cam) => cam.addControls());
 
         const newRenderer = new myNewRenderer();
         newRenderer.startRender();
+
     }
 
     buildCameraArray() {
@@ -42,17 +44,4 @@ export class CanvasBoxComponent implements OnInit {
         // this.cameras.push(new myCamera(new THREE.Vector3(30, 5, 20)));
         this.cdr.detectChanges();
     }
-
-    // createHTMLElementsForCameras() {
-    //     const div = document.querySelector(".split") as HTMLDivElement;
-    //     this.cameras.forEach((cam) => {
-    //         let camView = document.createElement("div") as HTMLDivElement;
-    //         camView.id = "view" + cam.instanceId.toString();
-    //         camView.setAttribute("tabindex", cam.instanceId.toString());
-    //         div.appendChild(camView);
-    //     });
-
-    //     // div.innerHTML =
-    //     //     "<div id='view1' tabindex='1'> <div id='blocker'> <div id='instructions'> <p style='font-size: xx-large'>Click to move</p>  <p style='font-size: large'>      Move: WASD<br />                    Jump: SPACE<br />                    Look: MOUSE<br />                    Stop: ESC                </p>            </div>        </div>    </div>    <div id='view2' tabindex='2'></div>    <div id='view3' tabindex='3'></div>";
-    // }
 }

@@ -93,17 +93,20 @@ export class myNewControls extends PointerLockControls {
     }
 
     createNewCamFromPlayerView() {
-        cameras.push(
-            new myCamera(
-                new THREE.Vector3(
-                    player.position.x,
-                    player.position.y,
-                    player.position.z
-                ),
-                player.rotation,
-                player.fov
-            )
+        let cam = new myCamera(
+            new THREE.Vector3(
+                player.position.x,
+                player.position.y,
+                player.position.z
+            ),
+            player.rotation,
+            player.fov
         );
+        cameras.push(cam);
+        setTimeout(() => {
+            cam.addControls();
+        }, 1000);
+        // cam.addControls();
     }
 
     private addKeyBindings() {
