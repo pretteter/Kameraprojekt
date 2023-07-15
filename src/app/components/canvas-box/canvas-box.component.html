@@ -1,6 +1,33 @@
 <canvas id="c"></canvas>
-<div id="views">
-    <div class="split">
+<!-- <div id="views">
+    <div id="view1" tabindex="1">
+        <div id="blocker">
+            <div id="instructions">
+                <p style="font-size: xx-large">Click to move</p>
+                <p style="font-size: large">
+                    Move: WASD<br />
+                    Jump/UP: SPACE<br />
+                    Down: Strg <br />
+                    Look: MOUSE<br />
+                    Stop: ESC <br />
+                    Cam: Enter
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <ng-container *ngFor="let cam of cameras; let i = index">
+        <div [id]="'view' + cam.instanceId" [tabindex]="cam.instanceId"></div>
+    </ng-container>
+</div> -->
+
+<!-- <div id="views"> -->
+<mat-grid-list
+    id="views"
+    cols="{{ cameras.length >= 1 ? 2 : 1 }}"
+    rowHeight="16:9"
+>
+    <mat-grid-tile>
         <div id="view1" tabindex="1">
             <div id="blocker">
                 <div id="instructions">
@@ -16,13 +43,30 @@
                 </div>
             </div>
         </div>
-        <ng-container *ngFor="let cam of cameras; let i = index">
+    </mat-grid-tile>
+    <ng-container *ngFor="let cam of cameras; let i = index">
+        <mat-grid-tile>
             <div
                 [id]="'view' + cam.instanceId"
                 [tabindex]="cam.instanceId"
             ></div>
-        </ng-container>
-        <!-- <div id="view2" tabindex="2"></div>
-        <div id="view3" tabindex="3"></div> -->
-    </div>
-</div>
+        </mat-grid-tile>
+    </ng-container>
+
+    <!-- <ng-container *ngFor="let cam of cameras; let i = index">
+            <div
+                [id]="'view' + cam.instanceId"
+                [tabindex]="cam.instanceId"
+            ></div>
+        </ng-container> -->
+</mat-grid-list>
+<!-- </div> -->
+<!-- 
+<br />
+<br />
+<mat-grid-list cols="2" rowHeight="2:1">
+    <mat-grid-tile>1</mat-grid-tile>
+    <mat-grid-tile>2</mat-grid-tile>
+    <mat-grid-tile>3</mat-grid-tile>
+    <mat-grid-tile>4</mat-grid-tile>
+</mat-grid-list> -->

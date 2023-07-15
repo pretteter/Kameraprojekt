@@ -95,10 +95,10 @@ export class myCamera extends THREE.PerspectiveCamera {
             x.add(this, "fov", 1, 180);
             x.add(this, "near", 1, 50, 0.1);
             x.add(this, "far", 1, 50, 0.1);
-            x.add(this.rotation, "x", 0, 2 * Math.PI, 0.1);
-            x.add(this.rotation, "y", 0, 2 * Math.PI, 0.1);
-            x.add(this.rotation, "z", 0, 2 * Math.PI, 0.1);
-            var params = {
+            // x.add(this.rotation, "x", 0, 2 * Math.PI, 0.1);
+            // x.add(this.rotation, "y", 0, 2 * Math.PI, 0.1);
+            // x.add(this.rotation, "z", 0, 2 * Math.PI, 0.1);
+            const params = {
                 followPlayer: this.followPlayer,
                 helper: this.helper.visible,
             };
@@ -112,24 +112,16 @@ export class myCamera extends THREE.PerspectiveCamera {
             x.add(params, "helper").onChange(() => {
                 this.helper.visible = !this.helper.visible;
             });
+            const obj = {
+                delete: () => {
+                    let index = this.cameras.findIndex((cam) => this === cam);
+                    this.cameras.splice(index, 1);
+                    gui.removeFolder(x);
+                },
+            };
 
+            x.add(obj, "delete");
             x.close();
-        } else {
-            // const x = gui.addFolder("Camera" + this.instanceId + " Controls");
-            // x.add(this, "fov", 1, 180);
-            // x.add(this, "near", 1, 50, 0.1);
-            // x.add(this, "far", 1, 50, 0.1);
-            // x.add(this.rotation, "x", 0, 2 * Math.PI, 0.1);
-            // x.add(this.rotation, "y", 0, 2 * Math.PI, 0.1);
-            // x.add(this.rotation, "z", 0, 2 * Math.PI, 0.1);
-            // var params = { followPlayer: this.followPlayer };
-            // x.add(params, "followPlayer").onChange(() => {
-            //     this.followPlayer = !this.followPlayer;
-            //     this.followPlayer === true
-            //         ? this.disableControls()
-            //         : this.enableControls();
-            // });
-            // x.close();
         }
     }
 

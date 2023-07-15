@@ -13,6 +13,8 @@ import { myCamera } from "src/app/classes/myCamera";
 import { scene, cameras, player } from "src/app/Collection/globalVariables";
 import * as THREE from "three";
 
+
+
 @Component({
     selector: "app-canvas-box",
     templateUrl: "./canvas-box.component.html",

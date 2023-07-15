@@ -95,6 +95,8 @@ export class myNewRenderer extends THREE.WebGLRenderer {
         this.setViewport(left, positiveYUpBottom, width, height);
 
         // return the aspect
+        // console.log(width / height);
+
         return width / height;
     }
 
@@ -140,7 +142,7 @@ export class myNewRenderer extends THREE.WebGLRenderer {
 
         // adjust the camera for this aspect
         this.player.aspect = aspect;
-        // this.player.aspect = 16 / 9;
+        // this.player.aspect = 1.74;
         this.player.updateProjectionMatrix();
         this.player.helper.update();
 
