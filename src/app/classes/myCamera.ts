@@ -93,8 +93,8 @@ export class myCamera extends THREE.PerspectiveCamera {
         if (!(this instanceof myPlayer)) {
             const x = gui.addFolder("Camera " + this.instanceId + " Controls");
             x.add(this, "fov", 1, 180);
-            x.add(this, "near", 1, 50, 0.1);
-            x.add(this, "far", 1, 50, 0.1);
+            // x.add(this, "near", 1, 50, 0.1);
+            x.add(this, "far", 1, this.far, 0.1);
             // x.add(this.rotation, "x", 0, 2 * Math.PI, 0.1);
             // x.add(this.rotation, "y", 0, 2 * Math.PI, 0.1);
             // x.add(this.rotation, "z", 0, 2 * Math.PI, 0.1);
@@ -124,6 +124,16 @@ export class myCamera extends THREE.PerspectiveCamera {
             x.close();
         }
     }
+
+   private convertFovToFocalLength(fov: number, sensorWidth: number): number {
+        // Horizontaler Bildwinkel in Grad für Vollformat (35mm Sensorbreite)
+        const fullFrameHorizontalFov = 54.4;
+        
+        // Berechnung der Brennweite für Vollformat
+        const focalLength = (sensorWidth / fullFrameHorizontalFov) * fov;
+        
+        return focalLength;
+      }
 
     private loadGLTFObject(path: string, name: string) {
         const loader = new GLTFLoader().setPath(path);
