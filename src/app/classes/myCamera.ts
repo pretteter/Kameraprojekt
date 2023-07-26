@@ -125,15 +125,15 @@ export class myCamera extends THREE.PerspectiveCamera {
         }
     }
 
-   private convertFovToFocalLength(fov: number, sensorWidth: number): number {
+    private convertFovToFocalLength(fov: number, sensorWidth: number): number {
         // Horizontaler Bildwinkel in Grad für Vollformat (35mm Sensorbreite)
         const fullFrameHorizontalFov = 54.4;
-        
+
         // Berechnung der Brennweite für Vollformat
         const focalLength = (sensorWidth / fullFrameHorizontalFov) * fov;
-        
+
         return focalLength;
-      }
+    }
 
     private loadGLTFObject(path: string, name: string) {
         const loader = new GLTFLoader().setPath(path);

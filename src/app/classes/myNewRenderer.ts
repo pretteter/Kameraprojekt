@@ -119,19 +119,10 @@ export class myNewRenderer extends THREE.WebGLRenderer {
         });
     }
 
-    // createHTMLElementsForCameras() {
-    //     const div = document.querySelector(".split") as HTMLDivElement;
-    //     this.cameras.forEach((cam) => {
-    //         let camView = document.createElement("div");
-    //         camView.id = "view" + cam.instanceId.toString();
-    //         camView.setAttribute("tabindex", cam.instanceId.toString());
-    //         div.appendChild(camView);
-    //     });
-    // }
-
     renderAllCameraViews() {
         this.cameras.forEach((cam) => {
             this.renderCameraView(cam);
+            console.log(cam.rotation);
         });
     }
 
